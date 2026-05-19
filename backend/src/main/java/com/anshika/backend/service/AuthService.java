@@ -1,5 +1,6 @@
 package com.anshika.backend.service;
-
+import com.anshika.backend.security.JwtService;
+import com.anshika.backend.dto.LoginRequest;
 import com.anshika.backend.dto.SignupRequest;
 import com.anshika.backend.entity.Role;
 import com.anshika.backend.entity.User;
@@ -7,36 +8,56 @@ import com.anshika.backend.repository.UserRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Service
 public class AuthService {
 
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final JwtService jwtService; // 🌟 ADD THIS DEPENDENCY PROPERTY HERE!
 
-    // Spring will automatically inject our database repository and encoder here
-    public AuthService(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder) {
+    // 🌟 UPDATE YOUR CONSTRUCTOR TO INJECT JWT SERVICE:
+    public AuthService(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder, JwtService jwtService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.jwtService = jwtService;
     }
 
     public String registerUser(SignupRequest request) {
-        // Feature 1: Validate email uniqueness
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new RuntimeException("Error: Email is already taken!");
         }
 
-        // Feature 2: Encrypt the password using BCrypt
         String encryptedPassword = passwordEncoder.encode(request.getPassword());
 
-        // Feature 3: Create and save the new user record
         User newUser = new User(
                 request.getName(),
                 request.getEmail(),
                 encryptedPassword,
-                Role.USER // New signups are standard USERS by default
+                Role.USER
         );
 
         userRepository.save(newUser);
         return "User registered successfully!";
+    }
+
+    public Map<String, String> loginUser(LoginRequest request) {
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new RuntimeException("Error: Invalid email or password."));
+
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            throw new RuntimeException("Error: Invalid email or password.");
+        }
+
+        // 🌟 SWAP OUT THE MOCK STRING WITH A REAL COMPILER GENERATED TOKEN PASSED FROM YOUR JWT SERVICE:
+        String realToken = jwtService.generateToken(user.getEmail());
+
+        Map<String, String> responseData = new HashMap<>();
+        responseData.put("token", realToken); // 🌟 Drops the real cryptographic token here!
+        responseData.put("name", user.getName());
+
+        return responseData;
     }
 }
