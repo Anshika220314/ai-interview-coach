@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import Signup from './Signup';
 import Login from './Login';
 import axios from 'axios';
+import ResumeUpload from './ResumeUpload';
 
 function App() {
   // States to track view toggles and user authentication
@@ -10,13 +11,14 @@ function App() {
   const [userName, setUserName] = useState(localStorage.getItem('userName'));
   const [profileData, setProfileData] = useState(null);
 
-  // Synchronously pull profile metrics from backend infrastructure if token is active
+  // Pull profile metrics from backend infrastructure if token is active
   useEffect(() => {
     if (!token) return;
 
     const loadProfile = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/api/users/profile', {
+        // 🌟 CRITICAL FIX: Changed route from /api/users/profile to /api/user/profile to match your UserController mapping!
+        const response = await axios.get('http://localhost:8080/api/user/profile', {
           headers: {
             Authorization: `Bearer ${token}`
           }
@@ -104,10 +106,20 @@ function App() {
                   </div>
                 )}
               </div>
+
+              {/* 🌟 INTEGRATED COMPONENT: Resume Upload Pipeline Engine */}
+              {profileData && (
+                <div className="mt-6 animate-fadeIn">
+                  <ResumeUpload 
+                    userId={profileData.id} 
+                    onUploadSuccess={() => console.log("Resume pipeline synchronized successfully.")} 
+                  />
+                </div>
+              )}
             </div>
 
             <div className="text-[11px] text-gray-400 mt-8 border-t border-gray-50 pt-4">
-              Session Security Token Token: <span className="font-mono bg-gray-100 px-1 py-0.5 rounded text-gray-600">Active JWT Pass</span>
+              Session Security Token: <span className="font-mono bg-gray-100 px-1 py-0.5 rounded text-gray-600">Active JWT Pass</span>
             </div>
           </div>
 

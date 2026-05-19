@@ -1,6 +1,7 @@
 package com.anshika.backend.entity;
 
 import jakarta.persistence.*;
+import java.util.List; // 🌟 ADD THIS IMPORT AT THE TOP!
 
 @Entity
 @Table(name = "users") // Renamed to 'users' because 'user' is a reserved keyword in PostgreSQL
@@ -22,6 +23,10 @@ public class User {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role;
+
+    // 🌟 ADD THIS RELATIONSHIP FIELD RIGHT HERE:
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Resume> resumes;
 
     // --- Constructor Methods ---
     public User() {
@@ -73,5 +78,14 @@ public class User {
 
     public void setRole(Role role) {
         this.role = role;
+    }
+
+    // 🌟 ADD GETTER AND SETTER FOR RESUMES SO WE CAN CALL THEM IN SERVICES:
+    public List<Resume> getResumes() {
+        return resumes;
+    }
+
+    public void setResumes(List<Resume> resumes) {
+        this.resumes = resumes;
     }
 }

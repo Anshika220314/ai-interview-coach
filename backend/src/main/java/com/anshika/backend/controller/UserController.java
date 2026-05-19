@@ -13,7 +13,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/user")
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = {"http://localhost:5173", "http://localhost:5174"})
 public class UserController {
 
     private final UserRepository userRepository;
@@ -23,7 +23,7 @@ public class UserController {
 
     @GetMapping("/profile")
     public ResponseEntity<?> getUserProfile() {
-        // 1. Extract the authenticated email
+        // 1. Extract the authenticated email from the JWT filter chain context
         String authenticatedEmail = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         // 2. Fetch user profile from database
@@ -34,8 +34,9 @@ public class UserController {
             return ResponseEntity.status(404).body("Error: User profile not found.");
         }
 
-        // 3. Build a simple response packet using a plain HashMap to avoid any strict typing bounds
-        Map<String, String> response = new HashMap<>();
+        // 3. Changed map typing to <String, Object> so it can hold both text strings and numeric Long IDs!
+        Map<String, Object> response = new HashMap<>();
+        response.put("id", user.getId()); // 🌟 CRITICAL FIX: Returning the ID parameter to the React node!
         response.put("name", user.getName());
         response.put("email", user.getEmail());
         response.put("role", user.getRole().name());
