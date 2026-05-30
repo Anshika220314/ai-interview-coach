@@ -1,5 +1,6 @@
 package com.anshika.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference; // 🌟 IMPORT ADDED HERE
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -25,8 +26,9 @@ public class Resume {
 
     private LocalDateTime uploadedAt;
 
-    // Establishing a multi-relationship link back to your core User model
+    // 🌟 ADDED @JsonBackReference TO STOP JACKSON FROM LOOPING BACK INTO USER DETAILS
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonBackReference
     private User user;
 }

@@ -3,6 +3,7 @@ package com.anshika.backend.config;
 import com.anshika.backend.security.JwtFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -31,16 +32,37 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                // 1. Core Firewall Settings
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
+
+                // 2. Access Rules Engine
                 .authorizeHttpRequests(auth -> auth
-                        // 🌟 FIXED: Added "/api/resumes/**" right here to clear the 403 gate check block!
-                        .requestMatchers("/api/auth/**", "/api/test", "/api/resumes/**").permitAll()
+                        // 🌟 CRITICAL: Explicitly permit all browser OPTIONS preflight requests!
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
+                        // Open authentication, testing, and analytics paths natively
+                        .requestMatchers(
+                                "/api/auth/login",
+                                "/api/auth/login/",
+                                "/api/auth/signup",
+                                "/api/auth/signup/",
+                                "/api/auth/**",
+                                "/api/test",
+                                "/api/resumes/**",
+                                "/ai/test",
+                                "/chat",
+                                "/analytics/**"
+                        ).permitAll()
+
+                        // Lock down remaining resource mappings
                         .anyRequest().authenticated()
                 )
-                // Make session stateless because JWT handles authentication
+
+                // 3. Stateless Session Infrastructure
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                // Attach our custom JWT verification guard filter
+
+                // 4. Custom JWT Guard Filter Linkage
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
@@ -50,10 +72,11 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // Explicitly authorize both potential Vite frontend server ports
+        // Authorize Vite local browser targets explicitly
         configuration.setAllowedOrigins(List.of("http://localhost:5173", "http://localhost:5174"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "Cache-Control"));
+        configuration.setExposedHeaders(List.of("Authorization"));
         configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

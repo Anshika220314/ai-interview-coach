@@ -32,7 +32,7 @@ public class ResumeService {
         this.userRepository = userRepository;
     }
 
-    public Resume uploadResume(MultipartFile file, Long userId) throws IOException {
+    public String uploadResume(Long userId, MultipartFile file) throws IOException {
         // 1. Verify if the user exists in our database system
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User profile not found with ID: " + userId));
@@ -66,10 +66,28 @@ public class ResumeService {
         resume.setUploadedAt(LocalDateTime.now());
         resume.setUser(user);
 
-        return resumeRepository.save(resume);
+        resumeRepository.save(resume);
+        return "Resume uploaded successfully!";
     }
 
     public List<Resume> getUserResumes(Long userId) {
-        return resumeRepository.findByUserId(userId);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // 🌟 SYNCED FIX: Uses your repo's exact findByUser(user) signature method!
+        return resumeRepository.findByUser(user);
+    }
+
+    public String deleteResume(Long id) {
+        Resume resume = resumeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Resume not found"));
+
+        File file = new File(resume.getFilePath());
+        if (file.exists()) {
+            file.delete();
+        }
+
+        resumeRepository.delete(resume);
+        return "Resume deleted successfully!";
     }
 }

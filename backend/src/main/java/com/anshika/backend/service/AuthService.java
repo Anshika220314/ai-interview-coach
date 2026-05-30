@@ -1,4 +1,5 @@
 package com.anshika.backend.service;
+
 import com.anshika.backend.security.JwtService;
 import com.anshika.backend.dto.LoginRequest;
 import com.anshika.backend.dto.SignupRequest;
@@ -16,9 +17,9 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
-    private final JwtService jwtService; // 🌟 ADD THIS DEPENDENCY PROPERTY HERE!
+    private final JwtService jwtService;
 
-    // 🌟 UPDATE YOUR CONSTRUCTOR TO INJECT JWT SERVICE:
+    // Constructor Injection for Repository, Encoder, and JWT Utility Infrastructure
     public AuthService(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder, JwtService jwtService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
@@ -32,12 +33,13 @@ public class AuthService {
 
         String encryptedPassword = passwordEncoder.encode(request.getPassword());
 
-        User newUser = new User(
-                request.getName(),
-                request.getEmail(),
-                encryptedPassword,
-                Role.USER
-        );
+        // Streamlined user generation utilizing the modern Lombok Builder pipeline
+        User newUser = User.builder()
+                .name(request.getName())
+                .email(request.getEmail())
+                .password(encryptedPassword)
+                .role(Role.USER)
+                .build();
 
         userRepository.save(newUser);
         return "User registered successfully!";
@@ -51,11 +53,11 @@ public class AuthService {
             throw new RuntimeException("Error: Invalid email or password.");
         }
 
-        // 🌟 SWAP OUT THE MOCK STRING WITH A REAL COMPILER GENERATED TOKEN PASSED FROM YOUR JWT SERVICE:
+        // Generate a cryptographically secure JWT credential for the authenticated user session
         String realToken = jwtService.generateToken(user.getEmail());
 
         Map<String, String> responseData = new HashMap<>();
-        responseData.put("token", realToken); // 🌟 Drops the real cryptographic token here!
+        responseData.put("token", realToken);
         responseData.put("name", user.getName());
 
         return responseData;
