@@ -5,8 +5,6 @@ pymupdf
 faiss-cpu
 pydantic
 python-dotenv
-sentence-transformers
-torch
 scikit-learn
 numpy
 python-multipart
