@@ -45,20 +45,14 @@ services:
     buildCommand: npm install && npm run build
     staticPublishPath: dist
     routes:
-      - source: /*
+      - type: rewrite
+        source: /*
         destination: /index.html
-        action: rewrite
     envVars:
       - key: VITE_API_URL
-        fromService:
-          type: web
-          name: ai-interview-coach-backend
-          property: host
+        sync: false
       - key: VITE_AI_URL
-        fromService:
-          type: web
-          name: ai-interview-coach-ai
-          property: host
+        sync: false
 
 databases:
   # ==========================================

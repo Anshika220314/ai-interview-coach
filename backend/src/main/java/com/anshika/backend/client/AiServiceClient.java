@@ -19,10 +19,17 @@ public class AiServiceClient {
     private String aiServiceUrl;
 
     private String getBaseUrl() {
-        if (aiServiceUrl != null && aiServiceUrl.endsWith("/")) {
-            return aiServiceUrl.substring(0, aiServiceUrl.length() - 1);
+        if (aiServiceUrl == null || aiServiceUrl.isBlank()) {
+            return "http://127.0.0.1:8000";
         }
-        return aiServiceUrl != null ? aiServiceUrl : "http://127.0.0.1:8000";
+        String url = aiServiceUrl.trim();
+        if (!url.startsWith("http://") && !url.startsWith("https://")) {
+            url = "http://" + url;
+        }
+        if (url.endsWith("/")) {
+            url = url.substring(0, url.length() - 1);
+        }
+        return url;
     }
 
     /**
