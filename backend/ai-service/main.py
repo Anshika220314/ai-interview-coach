@@ -15,7 +15,7 @@ from agents.orchestrator import route_agent
 from rag.chunking import chunk_text
 from rag.embedding import create_embeddings
 from rag.vector_store import store_embeddings, search
-import rag.vector_store as vs 
+import rag.vector_store as vs
 
 # LOAD .ENV FILE
 current_dir = Path(__file__).resolve().parent
@@ -26,15 +26,12 @@ load_dotenv(dotenv_path=env_path)
 api_key_token = os.getenv("GEMINI_API_KEY")
 
 if not api_key_token:
-    print("❌ ERROR: GEMINI_API_KEY not found!")
+    print("⚠️ WARNING: GEMINI_API_KEY not found in environment! Please set it in your Render environment variables.")
+    model = None
 else:
     print("✅ GEMINI_API_KEY loaded successfully!")
-
-# CONFIGURE GEMINI
-genai.configure(api_key=api_key_token)
-
-# LOAD MODEL
-model = genai.GenerativeModel("gemini-2.5-flash")
+    genai.configure(api_key=api_key_token)
+    model = genai.GenerativeModel(os.getenv("GEMINI_MODEL", "gemini-2.5-flash"))
 
 # FASTAPI APP
 app = FastAPI(
@@ -108,7 +105,7 @@ async def analyze_resume(file: UploadFile = File(...)):
     """
 
     response = model.generate_content(prompt)
-    
+
     # Clean output wrapper data in case the model returns markdown code block decorations
     raw_text = response.text.strip()
     if raw_text.startswith("```"):
@@ -277,8 +274,8 @@ async def generate_interview(
 # ==========================================
 @app.post("/evaluate-answer")
 async def evaluate_answer(
-        question: str = Form(...),  
-        answer: str = Form(...)     
+        question: str = Form(...),
+        answer: str = Form(...)
 ):
 
     prompt = f"""
@@ -320,7 +317,7 @@ async def evaluate_answer(
     """
 
     response = model.generate_content(prompt)
-    
+
     raw_eval = response.text.strip()
     if raw_eval.startswith("```"):
         lines = raw_eval.splitlines()
@@ -423,7 +420,7 @@ async def run_agent(
     if agent_type == "career":
         if "resume_context" not in data or "target_role" not in data:
             raise HTTPException(
-                status_code=400, 
+                status_code=400,
                 detail="Missing attributes! The 'career' agent type requires 'resume_context' and 'target_role' keys."
             )
     elif agent_type == "resume" and "resume_text" not in data:

@@ -8,8 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
-// Ensures both of your local frontend development server ports bypass the CORS firewall gate cleanly
-@CrossOrigin(origins = {"http://localhost:5173", "https://localhost:5174"})
+@CrossOrigin(origins = "*")
 public class AuthController {
 
     private final AuthService authService;

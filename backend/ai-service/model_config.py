@@ -9,7 +9,9 @@ env_path = current_dir / ".env"
 load_dotenv(dotenv_path=env_path)
 
 api_key_token = os.getenv("GEMINI_API_KEY")
-genai.configure(api_key=api_key_token)
-
-# Single shared model instance for your entire agent fleet
-model = genai.GenerativeModel("gemini-2.5-flash")
+if api_key_token:
+    genai.configure(api_key=api_key_token)
+    model = genai.GenerativeModel(os.getenv("GEMINI_MODEL", "gemini-2.5-flash"))
+else:
+    print("⚠️ WARNING: GEMINI_API_KEY not set in environment.")
+    model = None

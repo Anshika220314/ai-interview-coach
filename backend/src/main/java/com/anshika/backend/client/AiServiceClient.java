@@ -1,19 +1,35 @@
 package com.anshika.backend.client;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @Component
 public class AiServiceClient {
 
-    // RestTemplate handles the heavy lifting of sending outbound HTTP requests
     private final RestTemplate restTemplate = new RestTemplate();
+
+    @Value("${ai.service.url:http://127.0.0.1:8000}")
+    private String aiServiceUrl;
+
+    private String getBaseUrl() {
+        if (aiServiceUrl != null && aiServiceUrl.endsWith("/")) {
+            return aiServiceUrl.substring(0, aiServiceUrl.length() - 1);
+        }
+        return aiServiceUrl != null ? aiServiceUrl : "http://127.0.0.1:8000";
+    }
 
     /**
      * Verifies connection to the running FastAPI microservice instance
      */
     public String healthCheck() {
-        String url = "http://127.0.0.1:8000/health";
+        String url = getBaseUrl() + "/health";
         return restTemplate.getForObject(url, String.class);
     }
 
@@ -31,38 +47,41 @@ public class AiServiceClient {
             String query,
             String company
     ) {
+        String url = UriComponentsBuilder.fromHttpUrl(getBaseUrl() + "/chat")
+                .queryParam("query", query)
+                .queryParam("company", company)
+                .toUriString();
 
-        String url =
-                "http://127.0.0.1:8000/chat"
-                        + "?query=" + query
-                        + "&company=" + company;
-
-        return restTemplate.getForObject(
-                url,
-                String.class
-        );
+        return restTemplate.getForObject(url, String.class);
     }
 
     /**
      * Connects Spring Boot to the Python interview generation endpoint
      */
     public String generateInterview(String role, String company, String difficulty) {
-        String url = "http://127.0.0.1:8000/generate-interview"
-                + "?role=" + role
-                + "&company=" + company
-                + "&difficulty=" + difficulty;
+        String url = UriComponentsBuilder.fromHttpUrl(getBaseUrl() + "/generate-interview")
+                .queryParam("role", role)
+                .queryParam("company", company)
+                .queryParam("difficulty", difficulty)
+                .toUriString();
 
         return restTemplate.postForObject(url, null, String.class);
     }
 
     /**
-     * Connects Spring Boot to the AI evaluation engine endpoint
+     * Connects Spring Boot to the AI evaluation engine endpoint via form data
      */
     public String evaluateAnswer(String question, String answer) {
-        String url = "http://127.0.0.1:8000/evaluate-answer"
-                + "?question=" + question
-                + "&answer=" + answer;
+        String url = getBaseUrl() + "/evaluate-answer";
 
-        return restTemplate.postForObject(url, null, String.class);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+        map.add("question", question);
+        map.add("answer", answer);
+
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, headers);
+        return restTemplate.postForObject(url, request, String.class);
     }
 }

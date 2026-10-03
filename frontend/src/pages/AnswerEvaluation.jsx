@@ -1,6 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
-import api from "../services/api"; // Your auto-JWT attached Axios client for Spring Boot
+import api, { AI_BASE_URL } from "../services/api"; // Your auto-JWT attached Axios client for Spring Boot
 import Sidebar from "../components/Sidebar";
 
 export default function AnswerEvaluation() {
@@ -29,8 +29,8 @@ export default function AnswerEvaluation() {
       formData.append("question", question);
       formData.append("answer", answer);
 
-      // 1. Handshake with FastAPI on Port 8000 for AI Scores
-      const aiResponse = await axios.post("http://localhost:8000/evaluate-answer", formData);
+      // 1. Handshake with AI service for AI Scores
+      const aiResponse = await axios.post(`${AI_BASE_URL}/evaluate-answer`, formData);
 
       const feedbackData = aiResponse.data;
       setEvaluation(feedbackData);

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
+import { AI_BASE_URL } from "../services/api";
 
 export default function ResumeAnalysis() {
   const [file, setFile] = useState(null);
@@ -21,9 +22,9 @@ export default function ResumeAnalysis() {
       setLoading(true);
       setResult(null);
 
-      // Firing form binary parts up to your FastAPI backend server layer
+      // Firing form binary parts up to your AI backend server layer
       const response = await axios.post(
-        "http://localhost:8000/analyze-resume",
+        `${AI_BASE_URL}/analyze-resume`,
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" }
@@ -32,7 +33,7 @@ export default function ResumeAnalysis() {
 
       setResult(response.data);
     } catch (err) {
-      setError("Analysis system failed. Ensure your FastAPI port 8000 server is online.");
+      setError("Analysis system failed. Ensure your AI service is online.");
     } finally {
       setLoading(false);
     }

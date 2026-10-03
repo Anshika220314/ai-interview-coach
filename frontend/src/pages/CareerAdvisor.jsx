@@ -1,5 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
+import { AI_BASE_URL } from "../services/api";
 import Sidebar from "../components/Sidebar";
 
 export default function CareerAdvisor() {
@@ -27,10 +28,10 @@ export default function CareerAdvisor() {
       formData.append("current_skills", currentSkills);
       formData.append("experience_level", expLevel);
 
-      const response = await axios.post("http://localhost:8000/career-advice", formData);
+      const response = await axios.post(`${AI_BASE_URL}/career-advice`, formData);
       setRoadmap(response.data);
     } catch (err) {
-      setError("The Career Agent channel is unresponsive. Verify your FastAPI engine is up.");
+      setError("The Career Agent channel is unresponsive. Verify your AI service is up.");
     } finally {
       setLoading(false);
     }

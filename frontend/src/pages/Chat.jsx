@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import axios from "axios";
+import { AI_BASE_URL } from "../services/api";
 
 export default function Chat() {
   const [query, setQuery] = useState("");
@@ -27,7 +28,7 @@ export default function Chat() {
 
     try {
       // Direct integration handshake parsing parameters to FastAPI
-      const response = await axios.get("http://localhost:8000/chat", {
+      const response = await axios.get(`${AI_BASE_URL}/chat`, {
         params: { query: userMessage }
       });
 
@@ -38,7 +39,7 @@ export default function Chat() {
     } catch (err) {
       setMessages((prev) => [
         ...prev,
-        { role: "ai", text: "Network pipeline communication timeout. Please confirm FastAPI is live on port 8000." }
+        { role: "ai", text: "Network pipeline communication timeout. Please confirm AI service is live." }
       ]);
     } finally {
       setLoading(false);

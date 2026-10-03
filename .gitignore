@@ -1,0 +1,74 @@
+# OS Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Python & Virtual Environments
+venv/
+.venv/
+*/venv/
+*/.venv/
+*/*/.venv/
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Node & Frontend
+node_modules/
+*/node_modules/
+frontend/dist/
+frontend/.env.local
+frontend/.env.*.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Java & Maven (Backend)
+backend/target/
+target/
+*.class
+backend/uploads/*
+!backend/uploads/.gitkeep
+backend/backend/uploads/*
+.mvn/wrapper/maven-wrapper.jar
+
+# IDE & Editor Files
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+.classpath
+.project
+.settings/
+.springBeans
+.sts4-cache
+.apt_generated
+
+# Environment & Secrets (NEVER COMMIT SENSITIVE KEYS)
+.env
+*.env
+!.env.example

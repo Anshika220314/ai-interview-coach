@@ -1,6 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
-import api from "../services/api";
+import api, { AI_BASE_URL } from "../services/api";
 import Sidebar from "../components/Sidebar";
 import LoadingSpinner from "../components/LoadingSpinner"; // 🌟 MODULE 6 INTEGRATION
 
@@ -37,7 +37,7 @@ export default function InterviewGenerator() {
       setLoading(true);
       setLoadingMessage("Generating Interview..."); 
 
-      const response = await axios.post("http://localhost:8000/generate-interview", null, {
+      const response = await axios.post(`${AI_BASE_URL}/generate-interview`, null, {
         params: { role, company, difficulty }
       });
 
@@ -111,7 +111,7 @@ export default function InterviewGenerator() {
       formData.append("question", targetSession.question);
       formData.append("answer", targetSession.answer);
 
-      const aiResponse = await axios.post("http://localhost:8000/evaluate-answer", formData);
+      const aiResponse = await axios.post(`${AI_BASE_URL}/evaluate-answer`, formData);
       const evalData = aiResponse.data;
 
       setEvaluationResult(evalData);
