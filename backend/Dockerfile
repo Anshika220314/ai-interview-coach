@@ -6,12 +6,11 @@
 FROM maven:3.9-eclipse-temurin-21-alpine AS build
 WORKDIR /app
 
-# Cache Maven dependencies
+# Copy pom.xml and source code
 COPY pom.xml .
-RUN mvn dependency:go-offline -B || true
-
-# Copy source code and build
 COPY src ./src
+
+# Build production jar
 RUN mvn clean package -DskipTests
 
 # Stage 2: Minimal Production JRE 21 Runtime
@@ -21,8 +20,8 @@ WORKDIR /app
 # Create upload directory for resumes
 RUN mkdir -p /app/uploads
 
-# Copy built artifact from build stage
-COPY --from=build /app/target/*.jar /app/app.jar
+# Copy built artifact from build stage (finalName is app)
+COPY --from=build /app/target/app.jar /app/app.jar
 
 # Dynamic Port Binding
 ENV PORT=8080
