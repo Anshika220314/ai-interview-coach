@@ -54,7 +54,7 @@ public class AiServiceClient {
             String query,
             String company
     ) {
-        String url = UriComponentsBuilder.fromHttpUrl(getBaseUrl() + "/chat")
+        String url = UriComponentsBuilder.fromUriString(getBaseUrl() + "/chat")
                 .queryParam("query", query)
                 .queryParam("company", company)
                 .toUriString();
@@ -66,7 +66,7 @@ public class AiServiceClient {
      * Connects Spring Boot to the Python interview generation endpoint
      */
     public String generateInterview(String role, String company, String difficulty) {
-        String url = UriComponentsBuilder.fromHttpUrl(getBaseUrl() + "/generate-interview")
+        String url = UriComponentsBuilder.fromUriString(getBaseUrl() + "/generate-interview")
                 .queryParam("role", role)
                 .queryParam("company", company)
                 .queryParam("difficulty", difficulty)
