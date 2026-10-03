@@ -48,7 +48,8 @@ export default function Signup() {
         navigate("/");
       }, 2000);
     } catch (err) {
-      setError("Registration failed. Account might already exist or form keys are invalid.");
+      const serverMsg = err.response?.data?.message || err.response?.data || err.message;
+      setError(typeof serverMsg === "string" ? serverMsg : "Registration failed. Account might already exist or server is unreachable.");
     } finally {
       setLoading(false);
     }

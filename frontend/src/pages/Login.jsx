@@ -42,7 +42,8 @@ export default function Login() {
 
       navigate("/dashboard"); // Route straight onto the secure dashboard
     } catch (error) {
-      setError("Authentication failed. Invalid email or password configuration.");
+      const serverMsg = error.response?.data?.message || error.response?.data || error.message;
+      setError(typeof serverMsg === "string" ? serverMsg : "Authentication failed. Invalid email or password.");
     } finally {
       setLoading(false);
     }
